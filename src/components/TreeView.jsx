@@ -8,6 +8,7 @@ import { FaTrash } from "react-icons/fa";
 import { FaTrashRestore } from "react-icons/fa";
 import { FiSidebar } from "react-icons/fi";
 import { RiAccountCircleLine } from "react-icons/ri";
+import { IoDocumentTextOutline } from "react-icons/io5";
 
 const folder = {
   name: "",
@@ -88,7 +89,11 @@ function DirectoryTreeView() {
             getNodeProps,
             level,
           }) => (
-            <div {...getNodeProps()} style={{ paddingLeft: 20 * (level - 1) }}>
+            <div
+              {...getNodeProps()}
+              style={{ paddingLeft: 20 * (level - 1) }}
+              className="flex gap-x-2 items-center"
+            >
               {isBranch ? (
                 <FolderIcon isOpen={isExpanded} />
               ) : (
@@ -114,6 +119,8 @@ const FolderIcon = ({ isOpen }) =>
 const FileIcon = ({ filename }) => {
   const extension = filename.slice(filename.lastIndexOf(".") + 1);
   switch (extension) {
+    case "txt":
+      return <IoDocumentTextOutline color="orange" className="icon" />;
     case "js":
       return <DiJavascript color="yellow" className="icon" />;
     case "css":
