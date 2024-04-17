@@ -13,7 +13,7 @@ import { VscNewFile } from "react-icons/vsc";
 
 export function Navbar() {
   return (
-    <div className="fixed z-20 top-0 left-0 h-screen w-50 m-0 flex flex-col bg-[#537791] shadow-2xl">
+    <div className="fixed z-20 top-0 left-0 h-screen w-56 m-0 flex flex-col bg-[#537791] shadow-2xl">
       <div className="flex justify-end  bg-[#c1c0b9]">
         <button>
           <TbFolderPlus className="text-[#f7f6e7] text-2xl" />
