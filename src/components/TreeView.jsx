@@ -10,7 +10,8 @@ import { FiSidebar } from "react-icons/fi";
 import { RiAccountCircleLine } from "react-icons/ri";
 import { IoDocumentTextOutline } from "react-icons/io5";
 
-function DirectoryTreeView({ tree, onSelectNode }) {
+function DirectoryTreeView({ tree, onSelectNode, selectedNodeId }) {
+  console.log(selectedNodeId);
   return (
     <div>
       <div className="directory">
@@ -28,16 +29,21 @@ function DirectoryTreeView({ tree, onSelectNode }) {
             <div
               {...getNodeProps()}
               onClick={(e) => {
-                onSelectNode(element);
+                onSelectNode(element.id);
                 handleExpand(e);
               }}
               style={{ paddingLeft: 20 * (level - 1) }}
               className="flex gap-x-2 items-center"
             >
               {isBranch ? (
-                <FolderIcon isOpen={isExpanded} />
+                <FolderIcon
+                  isOpen={isExpanded}
+                  color={element.id === selectedNodeId ? "red" : "orange"}
+                />
               ) : (
-                <FileIcon filename={element.name} />
+                <FileIcon
+                  color={element.id === selectedNodeId ? "red" : "orange"}
+                />
               )}
 
               {element.name}
@@ -49,29 +55,15 @@ function DirectoryTreeView({ tree, onSelectNode }) {
   );
 }
 
-const FolderIcon = ({ isOpen }) =>
+const FolderIcon = ({ isOpen, color = "orange" }) =>
   isOpen ? (
-    <FaRegFolderOpen color="e8a87c" className="icon" />
+    <FaRegFolderOpen color={color} className="icon" />
   ) : (
-    <FaRegFolder color="e8a87c" className="icon" />
+    <FaRegFolder color={color} className="icon" />
   );
 
-const FileIcon = ({ filename }) => {
-  const extension = filename.slice(filename.lastIndexOf(".") + 1);
-  switch (extension) {
-    case "txt":
-      return <IoDocumentTextOutline color="orange" className="icon" />;
-    case "js":
-      return <DiJavascript color="yellow" className="icon" />;
-    case "css":
-      return <DiCss3 color="turquoise" className="icon" />;
-    case "json":
-      return <FaList color="yellow" className="icon" />;
-    case "npmignore":
-      return <DiNpm color="red" className="icon" />;
-    default:
-      return null;
-  }
+const FileIcon = ({ color = "orange" }) => {
+  return <IoDocumentTextOutline color={color} className="icon" />;
 };
 
 export default DirectoryTreeView;
