@@ -10,77 +10,13 @@ import { FiSidebar } from "react-icons/fi";
 import { RiAccountCircleLine } from "react-icons/ri";
 import { IoDocumentTextOutline } from "react-icons/io5";
 
-const folder = {
-  name: "",
-  children: [
-    {
-      name: "Buch",
-      children: [
-        {
-          name: "Kapitel 1",
-          children: [{ name: "Szene 1.txt" }, { name: "Szene 2.txt" }],
-        },
-        {
-          name: "Kapitel 2",
-          children: [
-            { name: "Szene 1.txt" },
-            { name: "Szene 2.txt" },
-            { name: "Szene 3.txt" },
-          ],
-        },
-      ],
-    },
-    {
-      name: "Ideen",
-      children: [
-        { name: "Braindump 1.txt" },
-        { name: "Notizen.txt" },
-        { name: "Noch mehr Ideen.txt" },
-        { name: "AAAaaaahhhhh.txt" },
-      ],
-    },
-    {
-      name: "Charaktere",
-      children: [
-        { name: "Hauptcharakter.txt" },
-        { name: "Nebencharakter.txt" },
-        { name: "Max/Bob/Magnus.txt" },
-      ],
-    },
-    // {
-    //   name: "src",
-    //   children: [{ name: "index.js" }, { name: "styles.css" }],
-    // },
-    // {
-    //   name: "node_modules",
-    //   children: [
-    //     {
-    //       name: "react-accessible-treeview",
-    //       children: [{ name: "index.js" }],
-    //     },
-    //     { name: "react", children: [{ name: "index.js" }] },
-    //   ],
-    // },
-    // {
-    //   name: ".npmignore",
-    // },
-    // {
-    //   name: "package.json",
-    // },
-    // {
-    //   name: "webpack.config.js",
-    // },
-  ],
-};
-
-const data = flattenTree(folder);
-
-function DirectoryTreeView() {
+function DirectoryTreeView({ tree, onSelectNode, selectedNodeId }) {
+  console.log(selectedNodeId);
   return (
     <div>
       <div className="directory">
         <TreeView
-          data={data}
+          data={tree}
           aria-label="directory tree"
           nodeRenderer={({
             element,
@@ -88,16 +24,26 @@ function DirectoryTreeView() {
             isExpanded,
             getNodeProps,
             level,
+            handleExpand,
           }) => (
             <div
               {...getNodeProps()}
+              onClick={(e) => {
+                onSelectNode(element.id);
+                handleExpand(e);
+              }}
               style={{ paddingLeft: 20 * (level - 1) }}
               className="flex gap-x-2 items-center"
             >
               {isBranch ? (
-                <FolderIcon isOpen={isExpanded} />
+                <FolderIcon
+                  isOpen={isExpanded}
+                  color={element.id === selectedNodeId ? "red" : "orange"}
+                />
               ) : (
-                <FileIcon filename={element.name} />
+                <FileIcon
+                  color={element.id === selectedNodeId ? "red" : "orange"}
+                />
               )}
 
               {element.name}
@@ -109,29 +55,15 @@ function DirectoryTreeView() {
   );
 }
 
-const FolderIcon = ({ isOpen }) =>
+const FolderIcon = ({ isOpen, color = "orange" }) =>
   isOpen ? (
-    <FaRegFolderOpen color="e8a87c" className="icon" />
+    <FaRegFolderOpen color={color} className="icon" />
   ) : (
-    <FaRegFolder color="e8a87c" className="icon" />
+    <FaRegFolder color={color} className="icon" />
   );
 
-const FileIcon = ({ filename }) => {
-  const extension = filename.slice(filename.lastIndexOf(".") + 1);
-  switch (extension) {
-    case "txt":
-      return <IoDocumentTextOutline color="orange" className="icon" />;
-    case "js":
-      return <DiJavascript color="yellow" className="icon" />;
-    case "css":
-      return <DiCss3 color="turquoise" className="icon" />;
-    case "json":
-      return <FaList color="yellow" className="icon" />;
-    case "npmignore":
-      return <DiNpm color="red" className="icon" />;
-    default:
-      return null;
-  }
+const FileIcon = ({ color = "orange" }) => {
+  return <IoDocumentTextOutline color={color} className="icon" />;
 };
 
 export default DirectoryTreeView;
