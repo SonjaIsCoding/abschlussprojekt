@@ -16,82 +16,6 @@ import { useState } from "react";
 import { flattenTree } from "react-accessible-treeview";
 import { v4 as uuid } from "uuid";
 
-const rootId = uuid();
-const bookId = uuid();
-const chapterOneId = uuid();
-const sceneOneId = uuid();
-const sceneTwoId = uuid();
-const sceneThreeId = uuid();
-const chapterTwoId = uuid();
-const ideasId = uuid();
-const charactersId = uuid();
-
-const folder = [
-  {
-    id: rootId,
-    name: "Root",
-    children: [bookId, ideasId, charactersId],
-    isBranch: true,
-    parent: null,
-  },
-  {
-    id: bookId,
-    name: "Book",
-    isBranch: true,
-    children: [chapterOneId],
-    parent: rootId,
-  },
-  {
-    id: chapterOneId,
-    name: "Kapitel 1",
-    isBranch: true,
-    children: [sceneOneId, sceneTwoId, sceneThreeId],
-    parent: bookId,
-  },
-  {
-    id: sceneOneId,
-    name: "Szene 1",
-    isBranch: false,
-    children: [],
-    parent: chapterOneId,
-  },
-  {
-    id: sceneTwoId,
-    name: "Szene 2",
-    isBranch: false,
-    children: [],
-    parent: chapterOneId,
-  },
-  {
-    id: sceneThreeId,
-    name: "Szene 3",
-    isBranch: false,
-    children: [],
-    parent: chapterOneId,
-  },
-  {
-    id: chapterTwoId,
-    name: "Kapitel 2",
-    isBranch: true,
-    children: [],
-    parent: bookId,
-  },
-  {
-    id: ideasId,
-    name: "Ideen",
-    isBranch: true,
-    children: [],
-    parent: rootId,
-  },
-  {
-    id: charactersId,
-    name: "Charactere",
-    isBranch: true,
-    children: [],
-    parent: rootId,
-  },
-];
-
 const folder_old = {
   name: "",
   children: [
@@ -132,37 +56,12 @@ const folder_old = {
   ],
 };
 
-export function Navbar() {
-  const [tree, setTree] = useState(folder);
-  const [selectedNodeId, setSelectedNodeId] = useState(rootId);
-  console.log(tree);
-
-  function handleAddNode(isBranch) {
-    const nodeName = window.prompt(
-      `Wie soll ${isBranch ? "der neue Folder" : "die neue Datei"} heißen?`,
-      `New ${isBranch ? "folder" : "file"}`
-    );
-    if (!nodeName) return;
-    const newNode = {
-      id: uuid(),
-      name: nodeName,
-      isBranch,
-      children: [],
-      parent: selectedNodeId,
-    };
-    const newTree = tree.map((node) => {
-      if (node.id === selectedNodeId) {
-        return {
-          ...node,
-          children: [...node.children, newNode.id],
-        };
-      } else {
-        return node;
-      }
-    });
-    setTree([...newTree, newNode]);
-  }
-
+export function Navbar({
+  tree,
+  onHandleAdd,
+  selectedNodeId,
+  setSelectedNodeId,
+}) {
   function handleSelectNode(id) {
     setSelectedNodeId(id);
   }
@@ -180,13 +79,13 @@ export function Navbar() {
         </button>
         <button
           onClick={() => {
-            handleAddNode(true);
+            onHandleAdd(true);
           }}
         >
           <TbFolderPlus className="text-[#f7f6e7] text-2xl" />
         </button>
         <button
-          onClick={() => handleAddNode(false)}
+          onClick={() => onHandleAdd(false)}
           className="text-[#f7f6e7] text-2xl"
         >
           <VscNewFile />
