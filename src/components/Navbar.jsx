@@ -10,6 +10,8 @@ import { FiSidebar } from "react-icons/fi";
 import { RiAccountCircleLine } from "react-icons/ri";
 import { TbFolderPlus } from "react-icons/tb";
 import { VscNewFile } from "react-icons/vsc";
+import { GiPlantRoots } from "react-icons/gi";
+import { IoLibraryOutline } from "react-icons/io5";
 import { useState } from "react";
 import { flattenTree } from "react-accessible-treeview";
 import { v4 as uuid } from "uuid";
@@ -17,6 +19,12 @@ import { v4 as uuid } from "uuid";
 const rootId = uuid();
 const bookId = uuid();
 const chapterOneId = uuid();
+const sceneOneId = uuid();
+const sceneTwoId = uuid();
+const sceneThreeId = uuid();
+const chapterTwoId = uuid();
+const ideasId = uuid();
+const charactersId = uuid();
 
 const folder = [
   {
@@ -36,9 +44,51 @@ const folder = [
   {
     id: chapterOneId,
     name: "Kapitel 1",
+    isBranch: true,
+    children: [sceneOneId, sceneTwoId, sceneThreeId],
+    parent: bookId,
+  },
+  {
+    id: sceneOneId,
+    name: "Szene 1",
     isBranch: false,
     children: [],
+    parent: chapterOneId,
+  },
+  {
+    id: sceneTwoId,
+    name: "Szene 2",
+    isBranch: false,
+    children: [],
+    parent: chapterOneId,
+  },
+  {
+    id: sceneThreeId,
+    name: "Szene 3",
+    isBranch: false,
+    children: [],
+    parent: chapterOneId,
+  },
+  {
+    id: chapterTwoId,
+    name: "Kapitel 2",
+    isBranch: true,
+    children: [],
     parent: bookId,
+  },
+  {
+    id: ideasId,
+    name: "Ideen",
+    isBranch: true,
+    children: [],
+    parent: rootId,
+  },
+  {
+    id: charactersId,
+    name: "Charactere",
+    isBranch: true,
+    children: [],
+    parent: rootId,
   },
 ];
 
@@ -85,6 +135,7 @@ const folder_old = {
 export function Navbar() {
   const [tree, setTree] = useState(folder);
   const [selectedNodeId, setSelectedNodeId] = useState(rootId);
+  console.log(tree);
 
   function handleAddNode(isBranch) {
     const nodeName = window.prompt(
@@ -120,11 +171,12 @@ export function Navbar() {
     <div className="fixed z-20 top-0 left-0 h-screen w-56 m-0 flex flex-col bg-[#537791] shadow-2xl">
       <div className="flex justify-end  bg-[#c1c0b9]">
         <button
+          className="flex justify-between flex-1"
           onClick={() => {
             setSelectedNodeId(rootId);
           }}
         >
-          Select Root
+          <IoLibraryOutline className="text-[#f7f6e7] text-2xl" />
         </button>
         <button
           onClick={() => {
