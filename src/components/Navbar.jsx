@@ -30,7 +30,7 @@ const folder = [
   {
     id: rootId,
     name: "Root",
-    children: [bookId],
+    children: [bookId, ideasId, charactersId],
     isBranch: true,
     parent: null,
   },
