@@ -60,6 +60,7 @@ const folder_old = {
 export function Navbar({
   tree,
   onHandleAdd,
+  onDeleteNode,
   selectedNodeId,
   onSelectedNodeId,
   rootId,
@@ -93,7 +94,7 @@ export function Navbar({
           <VscNewFile />
         </button>
         <button
-          onClick={() => onHandleAdd(false)}
+          onClick={() => onDeleteNode()}
           className="text-[#113f67] text-2xl"
         >
           <MdDeleteForever />

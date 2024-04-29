@@ -82,60 +82,98 @@ function App() {
     }
   }
 
-  function handleAddNode(isBranch) {
+  async function handleDeleteNode() {
+    const selectedNode = tree.find((node) => node.id === selectedNodeId);
+    if (!selectedNode) return;
+    if (selectedNode.children.length > 0) return;
+    const parent = tree.find((node) => selectedNode.parent === node.id);
+    if (!parent) return;
+    const newTree = tree.map((node) => {
+      if (node.id !== parent.id) return node;
+      return {
+        ...node,
+        children: node.children.filter((id) => id !== selectedNodeId),
+      };
+    });
+    setTree(newTree.filter((node) => node.id !== selectedNodeId));
+  }
+
+  async function handleAddNode(isBranch) {
     const nodeName = window.prompt(
       `Wie soll ${isBranch ? "der neue Folder" : "die neue Datei"} heißen?`,
       `New ${isBranch ? "folder" : "file"}`
     );
     if (!nodeName) return;
+    try {
+      const currentNode = tree.find(
+        (treeNode) => treeNode.id === selectedNodeId
+      );
+      if (currentNode.isBranch === false) {
+        // ist kein Ordner
+        const parentId = currentNode.parent;
+        const parentNode = tree.find((treeNode) => treeNode.id === parentId);
 
-    const currentNode = tree.find((treeNode) => treeNode.id === selectedNodeId);
-    if (currentNode.isBranch === false) {
-      // ist kein Ordner
-      const parentId = currentNode.parent;
-      const parentNode = tree.find((treeNode) => treeNode.id === parentId);
+        const { data: newNode } = await axios.post(`${API_URL}/nodes`, {
+          name: nodeName,
+          isBranch,
+          parent: parentNode.id,
+        });
 
-      const newNode = {
-        id: uuid(),
-        name: nodeName,
-        isBranch,
-        children: [],
-        parent: parentNode.id,
-      };
+        await axios.post(`${API_URL}/nodes/${parentNode.id}/addchild`, {
+          nodeId: newNode.id,
+        });
 
-      const newTree = tree.map((node) => {
-        if (node.id === parentNode.id) {
-          return {
-            ...node,
-            children: [...node.children, newNode.id],
-          };
-        } else {
-          return node;
+        if (!isBranch) {
+          const newNote = await axios.post(`${API_URL}/notes`, {
+            node: newNode.id,
+          });
+          setSelectedNote(newNote);
         }
-      });
-      setTree([...newTree, newNode]);
-    } else {
-      // ist ein Ordner
 
-      const newNode = {
-        id: uuid(),
-        name: nodeName,
-        isBranch,
-        children: [],
-        parent: selectedNodeId,
-      };
+        const newTree = tree.map((node) => {
+          if (node.id === parentNode.id) {
+            return {
+              ...node,
+              children: [...node.children, newNode.id],
+            };
+          } else {
+            return node;
+          }
+        });
+        setTree([...newTree, newNode]);
+      } else {
+        // ist ein Ordner
 
-      const newTree = tree.map((node) => {
-        if (node.id === selectedNodeId) {
-          return {
-            ...node,
-            children: [...node.children, newNode.id],
-          };
-        } else {
-          return node;
+        const { data: newNode } = await axios.post(`${API_URL}/nodes`, {
+          name: nodeName,
+          isBranch,
+          parent: selectedNodeId,
+        });
+
+        await axios.post(`${API_URL}/nodes/${selectedNodeId}/addchild`, {
+          nodeId: newNode.id,
+        });
+
+        if (!isBranch) {
+          const newNote = await axios.post(`${API_URL}/notes`, {
+            node: newNode.id,
+          });
         }
-      });
-      setTree([...newTree, newNode]);
+
+        const newTree = tree.map((node) => {
+          if (node.id === selectedNodeId) {
+            return {
+              ...node,
+              children: [...node.children, newNode.id],
+            };
+          } else {
+            return node;
+          }
+        });
+        setTree([...newTree, newNode]);
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -149,6 +187,7 @@ function App() {
         <Navbar
           className="flex z-20"
           onHandleAdd={handleAddNode}
+          onDeleteNode={handleDeleteNode}
           selectedNodeId={selectedNodeId}
           onSelectedNodeId={(nodeId) => {
             console.log(nodeId);
