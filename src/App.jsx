@@ -4,97 +4,12 @@ import ReactQuill from "react-quill";
 import { useState, useEffect } from "react";
 import "react-quill/dist/quill.snow.css";
 import { v4 as uuid } from "uuid";
+import axios from "axios";
 
-const rootId = uuid();
-const bookId = uuid();
-const chapterOneId = uuid();
-const sceneOneId = uuid();
-const sceneTwoId = uuid();
-const sceneThreeId = uuid();
-const chapterTwoId = uuid();
-const ideasId = uuid();
-const charactersId = uuid();
+const API_URL = "http://localhost:3000";
+const initialRootId = uuid();
 
-const folder = [
-  {
-    id: rootId,
-    name: "Root",
-    children: [bookId, ideasId, charactersId],
-    isBranch: true,
-    parent: null,
-  },
-  {
-    id: bookId,
-    name: "Book",
-    isBranch: true,
-    children: [chapterOneId],
-    parent: rootId,
-  },
-  {
-    id: chapterOneId,
-    name: "Kapitel 1",
-    isBranch: true,
-    children: [sceneOneId, sceneTwoId, sceneThreeId],
-    parent: bookId,
-  },
-  {
-    id: sceneOneId,
-    name: "Szene 1",
-    isBranch: false,
-    children: [],
-    parent: chapterOneId,
-  },
-  {
-    id: sceneTwoId,
-    name: "Szene 2",
-    isBranch: false,
-    children: [],
-    parent: chapterOneId,
-  },
-  {
-    id: sceneThreeId,
-    name: "Szene 3",
-    isBranch: false,
-    children: [],
-    parent: chapterOneId,
-  },
-  {
-    id: chapterTwoId,
-    name: "Kapitel 2",
-    isBranch: true,
-    children: [],
-    parent: bookId,
-  },
-  {
-    id: ideasId,
-    name: "Ideen",
-    isBranch: true,
-    children: [],
-    parent: rootId,
-  },
-  {
-    id: charactersId,
-    name: "Charactere",
-    isBranch: true,
-    children: [],
-    parent: rootId,
-  },
-];
-
-const fileContents = [
-  {
-    id: sceneOneId,
-    content: "Hello World! This is Scene 1.",
-  },
-  {
-    id: sceneTwoId,
-    content: "Hello World!  This is Scene 2.",
-  },
-  {
-    id: sceneThreeId,
-    content: "Hello World!  This is Scene 3.",
-  },
-];
+const fileContents = [];
 
 const modules = {
   toolbar: [
@@ -113,17 +28,59 @@ const modules = {
 };
 
 function App() {
-  const [selectedNodeId, setSelectedNodeId] = useState(rootId);
-  const [tree, setTree] = useState(folder);
-  const [value, setValue] = useState("");
-
-  const currentContent = fileContents.find(
-    (file) => file.id === selectedNodeId
-  );
+  const [selectedNodeId, setSelectedNodeId] = useState(initialRootId);
+  const [tree, setTree] = useState([
+    {
+      id: initialRootId,
+      name: "Root",
+      children: [],
+      isBranch: true,
+      parent: null,
+    },
+  ]);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    setValue(currentContent?.content);
-  }, [currentContent]);
+    async function loadTree() {
+      try {
+        const { data } = await axios.get(`${API_URL}/nodes`);
+        console.log(data);
+        const rootElement = data.find((node) => !node.parent);
+        setSelectedNodeId(rootElement.id);
+        setTree(data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    loadTree();
+  }, []);
+
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const { data } = await axios.get(`${API_URL}/notes/${selectedNodeId}`);
+        setSelectedNote(data);
+        setIsDirty(false);
+        console.log(data);
+      } catch (err) {
+        setSelectedNote(null);
+        console.log(err);
+      }
+    }
+    loadContent();
+  }, [selectedNodeId]);
+
+  async function saveContent() {
+    if (!selectedNote) return;
+    try {
+      await axios.put(`${API_URL}/notes/${selectedNote._id}`, {
+        content: selectedNote.content,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   function handleAddNode(isBranch) {
     const nodeName = window.prompt(
@@ -182,6 +139,10 @@ function App() {
     }
   }
 
+  const rootElement = tree.find((node) => !node.parent);
+  console.log({ selectedNote });
+  console.log({ selectedNodeId });
+
   return (
     <>
       <div className="flex z-20">
@@ -189,21 +150,45 @@ function App() {
           className="flex z-20"
           onHandleAdd={handleAddNode}
           selectedNodeId={selectedNodeId}
-          setSelectedNodeId={setSelectedNodeId}
+          onSelectedNodeId={(nodeId) => {
+            console.log(nodeId);
+            setSelectedNodeId(nodeId);
+          }}
           tree={tree}
           setTree={setTree}
+          rootId={rootElement.id}
         />
       </div>
       <div className="relative h-screen w-full">
         <div className="flex h-full w-full items-center justify-center">
           <div className="relative h-full w-2/4 flex items-center justify-center">
-            <ReactQuill
-              theme="snow"
-              value={value}
-              onChange={setValue}
-              className="h-full w-full "
-              modules={modules}
-            />
+            {selectedNote ? (
+              <>
+                <ReactQuill
+                  theme="snow"
+                  value={selectedNote?.content || ""}
+                  onChange={(text) => {
+                    setIsDirty(true);
+                    setSelectedNote((prev) => {
+                      return { ...prev, content: text };
+                    });
+                  }}
+                  className="h-full w-full "
+                  modules={modules}
+                />
+                <button
+                  className="border p-2 disabled:text-gray-400"
+                  disabled={!isDirty}
+                  onClick={() => {
+                    saveContent();
+                  }}
+                >
+                  Save
+                </button>
+              </>
+            ) : (
+              <h2>No content selected</h2>
+            )}
           </div>
         </div>
       </div>

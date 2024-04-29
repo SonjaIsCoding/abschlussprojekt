@@ -15,6 +15,7 @@ import { IoLibraryOutline } from "react-icons/io5";
 import { useState } from "react";
 import { flattenTree } from "react-accessible-treeview";
 import { v4 as uuid } from "uuid";
+import { MdDeleteForever } from "react-icons/md";
 
 const folder_old = {
   name: "",
@@ -60,38 +61,45 @@ export function Navbar({
   tree,
   onHandleAdd,
   selectedNodeId,
-  setSelectedNodeId,
+  onSelectedNodeId,
+  rootId,
 }) {
   function handleSelectNode(id) {
-    setSelectedNodeId(id);
+    onSelectedNodeId(id);
   }
 
   return (
-    <div className="fixed z-20 top-0 left-0 h-screen w-56 m-0 flex flex-col bg-[#537791] shadow-2xl">
-      <div className="flex justify-end  bg-[#c1c0b9]">
+    <div className="fixed z-20 top-0 left-0 h-screen w-56 m-0 flex flex-col bg-[#f0ece2] shadow-2xl">
+      <div className="flex justify-end  bg-[#f0ece2] ">
         <button
           className="flex justify-between flex-1"
           onClick={() => {
-            setSelectedNodeId(rootId);
+            onSelectedNodeId(rootId);
           }}
         >
-          <IoLibraryOutline className="text-[#f7f6e7] text-2xl" />
+          <IoLibraryOutline className="text-[#113f67] text-2xl" />
         </button>
         <button
           onClick={() => {
             onHandleAdd(true);
           }}
         >
-          <TbFolderPlus className="text-[#f7f6e7] text-2xl" />
+          <TbFolderPlus className="text-[#113f67] text-2xl" />
         </button>
         <button
           onClick={() => onHandleAdd(false)}
-          className="text-[#f7f6e7] text-2xl"
+          className="text-[#113f67] text-2xl"
         >
           <VscNewFile />
         </button>
+        <button
+          onClick={() => onHandleAdd(false)}
+          className="text-[#113f67] text-2xl"
+        >
+          <MdDeleteForever />
+        </button>
       </div>
-      <div className="text-[#f7f6e7] p-3 text-xl">
+      <div className="text-[#113f67] p-3 text-xl">
         <TreeView
           tree={tree}
           onSelectNode={handleSelectNode}
