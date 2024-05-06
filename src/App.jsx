@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import "react-quill/dist/quill.snow.css";
 import { v4 as uuid } from "uuid";
 import axios from "axios";
+import { FaRegSave } from "react-icons/fa";
 
 const API_URL = "http://localhost:3000";
 const initialRootId = uuid();
@@ -95,7 +96,21 @@ function App() {
         children: node.children.filter((id) => id !== selectedNodeId),
       };
     });
-    setTree(newTree.filter((node) => node.id !== selectedNodeId));
+
+    try {
+      await axios.post(`${API_URL}/nodes/${parent.id}/removechild`, {
+        nodeId: selectedNodeId,
+      });
+      await axios.delete(`${API_URL}/nodes/${selectedNodeId}`);
+      if (selectedNote) {
+        await axios.delete(`${API_URL}/notes/${selectedNote._id}`);
+      }
+      setTree(newTree.filter((node) => node.id !== selectedNodeId));
+      setSelectedNote(null);
+    } catch (err) {
+      console.log(err);
+      alert("Could not delete node");
+    }
   }
 
   async function handleAddNode(isBranch) {
@@ -198,39 +213,41 @@ function App() {
           rootId={rootElement.id}
         />
       </div>
-      <div className="relative h-screen w-full">
-        <div className="flex h-full w-full items-center justify-center">
-          <div className="relative h-full w-2/4 flex items-center justify-center">
-            {selectedNote ? (
-              <>
-                <ReactQuill
-                  theme="snow"
-                  value={selectedNote?.content || ""}
-                  onChange={(text) => {
-                    setIsDirty(true);
-                    setSelectedNote((prev) => {
-                      return { ...prev, content: text };
-                    });
-                  }}
-                  className="h-full w-full "
-                  modules={modules}
-                />
-                <button
-                  className="border p-2 disabled:text-gray-400"
-                  disabled={!isDirty}
-                  onClick={() => {
-                    saveContent();
-                  }}
-                >
-                  Save
-                </button>
-              </>
-            ) : (
-              <h2>No content selected</h2>
-            )}
+      {selectedNote ? (
+        <div className="flex-col h-full min-h-full w-full items-cente justify-center">
+          <div className="flex h-3/4 w-full">
+            <div className="h-full flex  justify-center">
+              <ReactQuill
+                theme="snow"
+                value={selectedNote?.content || ""}
+                onChange={(text) => {
+                  setIsDirty(true);
+                  setSelectedNote((prev) => {
+                    return { ...prev, content: text };
+                  });
+                }}
+                className="h-full"
+                modules={modules}
+              />
+            </div>
+          </div>
+          <div>
+            <button
+              className="mt-[100px] p-2 active:text-red disabled:text-gray-400 text-[#113f67] p-3"
+              disabled={!isDirty}
+              onClick={() => {
+                saveContent();
+              }}
+            >
+              <FaRegSave className="text-3xl z-50" />
+            </button>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex justify-center mt-[350px]">
+          <h2 className="font-serif text-8xl text-gray-300">Textventure</h2>
+        </div>
+      )}
     </>
   );
 }

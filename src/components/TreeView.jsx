@@ -33,16 +33,16 @@ function DirectoryTreeView({ tree, onSelectNode, selectedNodeId }) {
                 handleExpand(e);
               }}
               style={{ paddingLeft: 20 * (level - 1) }}
-              className="flex gap-x-2 items-center"
+              className="flex gap-x-2 items-center cursor: pointer"
             >
               {isBranch ? (
                 <FolderIcon
                   isOpen={isExpanded}
-                  color={element.id === selectedNodeId ? "red" : "orange"}
+                  color={element.id === selectedNodeId ? "#c50d66" : "#113f67"}
                 />
               ) : (
                 <FileIcon
-                  color={element.id === selectedNodeId ? "red" : "orange"}
+                  color={element.id === selectedNodeId ? "#c50d66" : "#113f67"}
                 />
               )}
 

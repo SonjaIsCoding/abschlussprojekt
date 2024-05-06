@@ -70,42 +70,44 @@ export function Navbar({
   }
 
   return (
-    <div className="fixed z-20 top-0 left-0 h-screen w-56 m-0 flex flex-col bg-[#f0ece2] shadow-2xl">
-      <div className="flex justify-end  bg-[#f0ece2] ">
-        <button
-          className="flex justify-between flex-1"
-          onClick={() => {
-            onSelectedNodeId(rootId);
-          }}
-        >
-          <IoLibraryOutline className="text-[#113f67] text-2xl" />
-        </button>
-        <button
-          onClick={() => {
-            onHandleAdd(true);
-          }}
-        >
-          <TbFolderPlus className="text-[#113f67] text-2xl" />
-        </button>
-        <button
-          onClick={() => onHandleAdd(false)}
-          className="text-[#113f67] text-2xl"
-        >
-          <VscNewFile />
-        </button>
-        <button
-          onClick={() => onDeleteNode()}
-          className="text-[#113f67] text-2xl"
-        >
-          <MdDeleteForever />
-        </button>
-      </div>
-      <div className="text-[#113f67] p-3 text-xl">
-        <TreeView
-          tree={tree}
-          onSelectNode={handleSelectNode}
-          selectedNodeId={selectedNodeId}
-        />
+    <div className="flex">
+      <div className="fixed z-20 top-0 left-0 h-screen w-56 m-0 flex flex-col bg-[#abcecf] shadow-2xl">
+        <div className="flex justify-end  bg-[#c4dce0] ">
+          <button
+            className="flex justify-between flex-1"
+            onClick={() => {
+              onSelectedNodeId(rootId);
+            }}
+          >
+            <IoLibraryOutline className="text-[#113f67] text-2xl" />
+          </button>
+          <button
+            onClick={() => {
+              onHandleAdd(true);
+            }}
+          >
+            <TbFolderPlus className="text-[#113f67] text-2xl" />
+          </button>
+          <button
+            onClick={() => onHandleAdd(false)}
+            className="text-[#113f67] text-2xl"
+          >
+            <VscNewFile />
+          </button>
+          <button
+            onClick={() => onDeleteNode()}
+            className="text-[#113f67] text-2xl"
+          >
+            <MdDeleteForever />
+          </button>
+        </div>
+        <div className="text-[#113f67] p-3 text-xl">
+          <TreeView
+            tree={tree}
+            onSelectNode={handleSelectNode}
+            selectedNodeId={selectedNodeId}
+          />
+        </div>
       </div>
     </div>
   );
